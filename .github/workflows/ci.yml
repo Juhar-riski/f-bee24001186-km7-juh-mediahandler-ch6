@@ -10,6 +10,22 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    # Definisikan layanan PostgreSQL menggunakan Docker
+    services:
+      postgres:
+        image: postgres:13 # Gunakan image PostgreSQL versi 13
+        ports:
+          - 5432:5432   # Memetakan port PostgreSQL
+        env:
+          POSTGRES_DB: ch6  # Nama database untuk pengujian
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd="pg_isready -U postgres"  # Memeriksa status PostgreSQL
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -21,12 +37,16 @@ jobs:
 
       - name: Set up environment variables from ENV_SECRET
         run: echo "${{ secrets.ENV_SECRET }}" > .env
-      
+
       - name: Verify .env file content
         run: cat .env
-      
+
       - name: Install dependencies
         run: npm install
+
+      - name: Set up Prisma and apply migrations
+        run: |
+          npx prisma migrate deploy # Terapkan migrasi Prisma ke database
 
       - name: Check environment variables
         run: |
