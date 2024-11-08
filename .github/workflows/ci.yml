@@ -27,6 +27,11 @@ jobs:
 
       - name: Run tests and generate coverage report
         run: npm test -- --coverage
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          IMAGEKIT_PUBLIC_KEY: ${{ secrets.IMAGEKIT_PUBLIC_KEY }}
+          IMAGEKIT_SECRET_KEY: ${{ secrets.IMAGEKIT_SECRET_KEY }}
+          IMAGEKIT_URL_ENDPOINT: ${{ secrets.IMAGEKIT_URL_ENDPOINT }}
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
