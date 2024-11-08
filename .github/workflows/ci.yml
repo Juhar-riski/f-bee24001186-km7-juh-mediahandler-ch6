@@ -19,6 +19,9 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Set up environment variables
+        run: echo "${{ secrets.ENV_SECRET }}" > .env
+
       - name: Install dependencies
         run: npm install
 
