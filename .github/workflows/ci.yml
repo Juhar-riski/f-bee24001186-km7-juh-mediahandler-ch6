@@ -21,6 +21,12 @@ jobs:
 
       - name: Set up environment variables from ENV_SECRET
         run: echo "${{ secrets.ENV_SECRET }}" > .env
+      
+      - name: Verify .env file content
+        run: cat .env
+      
+      - name: Install dependencies
+        run: npm install
 
       - name: Check environment variables
         run: |
@@ -28,10 +34,6 @@ jobs:
           echo "IMAGEKIT_PUBLIC_KEY: $IMAGEKIT_PUBLIC_KEY"
           echo "IMAGEKIT_SECRET_KEY: $IMAGEKIT_SECRET_KEY"
           echo "IMAGEKIT_URL_ENDPOINT: $IMAGEKIT_URL_ENDPOINT"
-
-
-      - name: Install dependencies
-        run: npm install
 
       - name: Run tests and generate coverage report
         run: npm test -- --coverage
