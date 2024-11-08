@@ -33,7 +33,7 @@ describe('Gambar Service', () => {
         };
         const mockImagekitResponse = { url: 'http://example.com/test.jpg' };
         const mockPictureData = {
-            id: 1,
+            id: 3,
             judul: 'Test Judul',
             deskription: 'Test Deskripsi',
             urlGambar: mockImagekitResponse.url,
@@ -61,8 +61,8 @@ describe('Gambar Service', () => {
 
     it('should return all pictures ordered by id desc', async () => {
         const mockPictures = [
-            { id: 1, judul: 'Test 1', deskription: 'Deskripsi 1', urlGambar: 'url1' },
-            { id: 2, judul: 'Test 2', deskription: 'Deskripsi 2', urlGambar: 'url2' },
+            { id: 3, judul: 'Test 3', deskription: 'Deskripsi 3', urlGambar: 'url3' },
+            { id: 4, judul: 'Test 4', deskription: 'Deskripsi 4', urlGambar: 'url4' },
         ];
         prismaMock.picture.findMany.mockResolvedValue(mockPictures);
 
@@ -73,36 +73,36 @@ describe('Gambar Service', () => {
     });
 
     it('should return picture detail by ID', async () => {
-        const mockPictureDetail = { id: 1, judul: 'Test Judul', deskription: 'Deskripsi', urlGambar: 'url1' };
+        const mockPictureDetail = { id: 3, judul: 'Test Judul', deskription: 'Deskripsi', urlGambar: 'url3' };
         prismaMock.picture.findUnique.mockResolvedValue(mockPictureDetail);
 
-        const result = await gambar.getGambarDetail(1);
+        const result = await gambar.getGambarDetail(3);
 
-        expect(prismaMock.picture.findUnique).toHaveBeenCalledWith({ where: { id: 1 } });
+        expect(prismaMock.picture.findUnique).toHaveBeenCalledWith({ where: { id: 3 } });
         expect(result).toEqual(mockPictureDetail);
     });
 
     it('should update a picture if it exists', async () => {
-        const mockUpdatedPicture = { id: 1, judul: 'Updated Title', deskription: 'Updated Description' };
-        prismaMock.picture.findUnique.mockResolvedValue({ id: 1 });
+        const mockUpdatedPicture = { id: 3, judul: 'Updated Title', deskription: 'Updated Description' };
+        prismaMock.picture.findUnique.mockResolvedValue({ id: 3 });
         prismaMock.picture.update.mockResolvedValue(mockUpdatedPicture);
 
-        const result = await gambar.updateGambar(1, { judul: 'Updated Title', deskription: 'Updated Description' });
+        const result = await gambar.updateGambar(3, { judul: 'Updated Title', deskription: 'Updated Description' });
 
         expect(prismaMock.picture.update).toHaveBeenCalledWith({
-            where: { id: 1 },
+            where: { id: 3 },
             data: { judul: 'Updated Title', deskription: 'Updated Description' },
         });
         expect(result).toEqual(mockUpdatedPicture);
     });
 
     it('should delete a picture by ID', async () => {
-        const mockDeletedPicture = { id: 1 };
+        const mockDeletedPicture = { id: 3 };
         prismaMock.picture.delete.mockResolvedValue(mockDeletedPicture);
 
-        const result = await gambar.deletePicture(1);
+        const result = await gambar.deletePicture(3);
 
-        expect(prismaMock.picture.delete).toHaveBeenCalledWith({ where: { id: 1 } });
+        expect(prismaMock.picture.delete).toHaveBeenCalledWith({ where: { id: 3 } });
         expect(result).toEqual(mockDeletedPicture);
     });
 });
