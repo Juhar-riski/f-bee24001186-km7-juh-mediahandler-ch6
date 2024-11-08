@@ -176,8 +176,8 @@ describe('Gambar Routes', () => {
   
       const response = await request(app).delete('/gambar/1');
   
-      expect(response.status).toBe(500);
-      expect(response.body).toEqual({ message: 'Failed to delete picture' });
+      expect(response.status).toBe(400);
+      expect(response.body).toEqual({ message: 'Id is not exist' });
       expect(Gambar.prototype.deletePicture).toHaveBeenCalledWith("1");
   });
   
