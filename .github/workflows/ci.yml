@@ -19,19 +19,18 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Set up environment variables
+      - name: Set up environment variables from ENV_SECRET
         run: echo "${{ secrets.ENV_SECRET }}" > .env
+
+      - name: Export environment variables
+        run: |
+          export $(cat .env | xargs)
 
       - name: Install dependencies
         run: npm install
 
       - name: Run tests and generate coverage report
         run: npm test -- --coverage
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          IMAGEKIT_PUBLIC_KEY: ${{ secrets.IMAGEKIT_PUBLIC_KEY }}
-          IMAGEKIT_SECRET_KEY: ${{ secrets.IMAGEKIT_SECRET_KEY }}
-          IMAGEKIT_URL_ENDPOINT: ${{ secrets.IMAGEKIT_URL_ENDPOINT }}
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
