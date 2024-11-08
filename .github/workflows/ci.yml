@@ -13,15 +13,15 @@ jobs:
     # Definisikan layanan PostgreSQL menggunakan Docker
     services:
       postgres:
-        image: postgres:13 # Gunakan image PostgreSQL versi 13
+        image: postgres:17
         ports:
-          - 5432:5432   # Memetakan port PostgreSQL
+          - 5432:5432 
         env:
-          POSTGRES_DB: ch6  # Nama database untuk pengujian
+          POSTGRES_DB: ch6
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
         options: >-
-          --health-cmd="pg_isready -U postgres"  # Memeriksa status PostgreSQL
+          --health-cmd="pg_isready -U postgres"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
@@ -46,7 +46,7 @@ jobs:
 
       - name: Set up Prisma and apply migrations
         run: |
-          npx prisma migrate deploy # Terapkan migrasi Prisma ke database
+          npx prisma migrate deploy 
 
       - name: Check environment variables
         run: |
