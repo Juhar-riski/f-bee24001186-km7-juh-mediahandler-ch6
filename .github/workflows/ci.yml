@@ -22,9 +22,13 @@ jobs:
       - name: Set up environment variables from ENV_SECRET
         run: echo "${{ secrets.ENV_SECRET }}" > .env
 
-      - name: Export environment variables
+      - name: Check environment variables
         run: |
-          export $(cat .env | xargs)
+          echo "DATABASE_URL: $DATABASE_URL"
+          echo "IMAGEKIT_PUBLIC_KEY: $IMAGEKIT_PUBLIC_KEY"
+          echo "IMAGEKIT_SECRET_KEY: $IMAGEKIT_SECRET_KEY"
+          echo "IMAGEKIT_URL_ENDPOINT: $IMAGEKIT_URL_ENDPOINT"
+
 
       - name: Install dependencies
         run: npm install
