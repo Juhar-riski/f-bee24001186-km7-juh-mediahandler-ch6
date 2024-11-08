@@ -57,7 +57,7 @@ class Gambar {
     }
 
     async deletePicture(pictureId) {
-        await prisma.picture.delete({
+        return await prisma.picture.delete({
             where: { id: Number(pictureId) },
         });
     }
