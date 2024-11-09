@@ -31,6 +31,7 @@ jobs:
 
             pm2 save
 
+            # Menambahkan pm2 ke startup agar otomatis berjalan saat serverr reboot
             pm2 startup systemd --hp /home/ubuntu
             pm2 save
           OEF
