@@ -2,6 +2,7 @@
 const express = require('express');
 const multer = require('multer');
 const gambar = require('../services/picture'); // pastikan path benar
+const { error } = require('console');
 const upload = multer(); // menggunakan multer untuk meng-handle upload file
 
 // Membuat instance gambar
@@ -15,7 +16,6 @@ router.post('/', upload.single('image'), async (req, res) => {
         const pictures = await gambarService.createGambar(req, res);
         res.status(201).json(pictures);
     } catch (error) {
-        console.log(error);
         res.status(500).json({ error: 'Internal server error' });
     }
 });

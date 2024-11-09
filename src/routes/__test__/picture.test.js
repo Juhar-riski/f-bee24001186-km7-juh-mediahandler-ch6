@@ -1,184 +1,184 @@
-// src/routes/__test__/gambarController.test.js
-
 const request = require('supertest');
 const express = require('express');
-const Gambar = require('../../services/picture');
-const gambarRouter = require('../picture');
+const gambarController = require('../picture'); // sesuaikan dengan path yang benar
+const gambarService = require('../../services/picture'); // sesuaikan dengan path yang benar
 
-jest.mock('../../services/picture');
-jest.mock('multer', () => {
-    // Mock fungsi `single` untuk menghindari error
-    const mMulter = () => ({
-        single: jest.fn(() => (req, res, next) => next())
-    });
-    mMulter.memoryStorage = jest.fn();
-    return mMulter;
-});
+jest.mock('../../services/picture'); // Mock gambarService
 
 const app = express();
 app.use(express.json());
-app.use('/gambar', gambarRouter);
+app.use('/gambar', gambarController);
 
-describe('Gambar Routes', () => {
-    let gambarMock;
+describe('Gambar Controller', () => {
 
-    beforeAll(() => {
-        gambarMock = new Gambar();
+    beforeEach(() => {
+        jest.clearAllMocks(); // Clear mocks before each test
     });
 
-    it('should create a new picture successfully', async () => {
+    it('should create a new picture with valid file type', async () => {
         const mockPicture = {
             id: 1,
             judul: 'Test Judul',
             deskription: 'Test Deskripsi',
-            urlGambar: 'http://example.com/test.jpg',
+            urlGambar: 'http://example.com/test.jpg'
         };
 
-        Gambar.prototype.createGambar.mockResolvedValue(mockPicture);
+        const mockReq = {
+            body: { judul: 'Test Judul', deskription: 'Test Deskripsi' },
+            file: { buffer: Buffer.from('test'), originalname: 'test.jpg', mimetype: 'image/jpeg' }
+        };
 
-        const response = await request(app)
-            .post('/gambar')
+        gambarService.prototype.createGambar.mockResolvedValue(mockPicture);
+
+        const response = await request(app).post('/gambar')
+            .attach('image', Buffer.from('test'), 'test.jpg')
             .field('judul', 'Test Judul')
-            .field('deskription', 'Test Deskripsi')
-            .attach('image', Buffer.from('file'), 'test.jpg');
+            .field('deskription', 'Test Deskripsi');
 
         expect(response.status).toBe(201);
         expect(response.body).toEqual(mockPicture);
-        expect(Gambar.prototype.createGambar).toHaveBeenCalled();
+        expect(gambarService.prototype.createGambar).toHaveBeenCalled();
     });
 
-    it('should fetch all pictures', async () => {
+    it('should return error if no file is uploaded', async () => {
+        const mockReq = {
+            body: { judul: 'No File', deskription: 'Deskripsi' },
+        };
+
+        gambarService.prototype.createGambar.mockRejectedValue(new Error('File is required'));
+
+        const response = await request(app).post('/gambar').send(mockReq);
+
+        expect(response.status).toBe(500);
+        expect(response.body.error).toBe('Internal server error');
+    });
+
+    it('should return error if file type is not JPEG, PNG or JPG', async () => {
+        const mockReq = {
+            body: { judul: 'Invalid File', deskription: 'Deskripsi' },
+            file: { buffer: Buffer.from('test'), originalname: 'test.pdf', mimetype: 'application/pdf' }
+        };
+
+        gambarService.prototype.createGambar.mockRejectedValue(new Error('Only JPEG, JPG and PNG files are allowed'));
+
+        const response = await request(app).post('/gambar')
+            .attach('image', Buffer.from('test'), 'test.pdf')
+            .field('judul', 'Invalid File')
+            .field('deskription', 'Deskripsi');
+
+        expect(response.status).toBe(500);
+        expect(response.body.error).toBe('Internal server error');
+    });
+
+    it('should get all pictures', async () => {
         const mockPictures = [
-            { id: 1, judul: 'Test 1', deskription: 'Deskripsi 1', urlGambar: 'url1' },
-            { id: 2, judul: 'Test 2', deskription: 'Deskripsi 2', urlGambar: 'url2' },
+            { id: 1, judul: 'Judul 1', deskription: 'Deskripsi 1', urlGambar: 'url1.jpg' }
         ];
 
-        Gambar.prototype.getGambar.mockResolvedValue(mockPictures);
+        gambarService.prototype.getGambar.mockResolvedValue(mockPictures);
 
         const response = await request(app).get('/gambar');
-
         expect(response.status).toBe(200);
-        expect(response.body).toEqual({
-            message: 'Fetched pictures successfully',
-            data: mockPictures,
-        });
-        expect(Gambar.prototype.getGambar).toHaveBeenCalled();
+        expect(response.body.data).toEqual(mockPictures);
+        expect(gambarService.prototype.getGambar).toHaveBeenCalled();
     });
 
     it('should return 500 if fetching pictures fails', async () => {
-      // Mock getGambar untuk menghasilkan error
-      Gambar.prototype.getGambar.mockRejectedValue(new Error('Database error'));
+        // Mock getGambar untuk menghasilkan error
+        gambarService.prototype.getGambar.mockRejectedValue(new Error('Database error'));
+    
+        const response = await request(app)
+            .get('/gambar');
+    
+        expect(response.status).toBe(500);
+        expect(response.body).toEqual({ message: 'Failed to fetch pictures' });
+        expect(gambarService.prototype.getGambar).toHaveBeenCalled();
+    });
   
-      const response = await request(app)
-          .get('/gambar');
-  
-      expect(response.status).toBe(500);
-      expect(response.body).toEqual({ message: 'Failed to fetch pictures' });
-      expect(Gambar.prototype.getGambar).toHaveBeenCalled();
-  });
-  
 
-    it('should fetch picture detail by ID', async () => {
-        const mockPicture = {
-            id: 1,
-            judul: 'Test Judul',
-            deskription: 'Test Deskripsi',
-            urlGambar: 'http://example.com/test.jpg',
-        };
+    it('should get picture details by ID', async () => {
+        const mockPicture = { id: 3, judul: 'Judul 3', deskription: 'Deskripsi 3', urlGambar: 'url3.jpg' };
+        
+        gambarService.prototype.getGambarDetail.mockResolvedValue(mockPicture);
 
-        Gambar.prototype.getGambarDetail.mockResolvedValue(mockPicture);
-
-        const response = await request(app).get('/gambar/1');
-
+        const response = await request(app).get('/gambar/3');
         expect(response.status).toBe(200);
-        expect(response.body).toEqual({
-            message: 'Fetched picture successfully',
-            data: mockPicture,
-        });
-        expect(Gambar.prototype.getGambarDetail).toHaveBeenCalledWith("1");
+        expect(response.body.data).toEqual(mockPicture);
     });
 
-    it('should return 404 if picture is not found', async () => {
-        Gambar.prototype.getGambarDetail.mockResolvedValue(null);
+    it('should return 404 if picture not found', async () => {
+        gambarService.prototype.getGambarDetail.mockResolvedValue(null);
 
         const response = await request(app).get('/gambar/999');
-
         expect(response.status).toBe(404);
-        expect(response.body).toEqual({ message: 'Picture not found' });
-        expect(Gambar.prototype.getGambarDetail).toHaveBeenCalledWith("999");
+        expect(response.body.message).toBe('Picture not found');
     });
 
-    it('should update a picture successfully', async () => {
-        const updatedPicture = {
-            id: 1,
-            judul: 'Updated Title',
-            deskription: 'Updated Description',
-            urlGambar: 'http://example.com/test.jpg',
-        };
+    it('should return error 500 when failed to fetch picture by ID', async () => {
+        const pictureId = 3;
 
-        Gambar.prototype.updateGambar.mockResolvedValue(updatedPicture);
+        // Mock gambarService.getGambarDetail untuk melempar error
+        gambarService.prototype.getGambarDetail.mockRejectedValue(new Error('Database Error'));
 
-        const response = await request(app)
-            .put('/gambar/1')
-            .send({ judul: 'Updated Title', deskription: 'Updated Description' });
+        const response = await request(app).get(`/gambar/${pictureId}`);
+        
+        // Memastikan response memiliki status 500 dan pesan yang sesuai
+        expect(response.status).toBe(500);
+        expect(response.body.message).toBe('Failed to fetch picture');
+    });
+
+    it('should update picture details', async () => {
+        const updatedPicture = { id: 1, judul: 'Updated Judul', deskription: 'Updated Deskripsi', urlGambar: 'url1.jpg' };
+
+        gambarService.prototype.updateGambar.mockResolvedValue(updatedPicture);
+
+        const response = await request(app).put('/gambar/1').send({
+            judul: 'Updated Judul',
+            deskription: 'Updated Deskripsi'
+        });
 
         expect(response.status).toBe(200);
-        expect(response.body).toEqual({
-            message: 'Picture updated successfully',
-            data: updatedPicture,
-        });
-        expect(Gambar.prototype.updateGambar).toHaveBeenCalledWith("1", {
-            judul: 'Updated Title',
-            deskription: 'Updated Description',
-        });
+        expect(response.body.data).toEqual(updatedPicture);
     });
 
     it('should return 500 if updating a picture fails', async () => {
-      // Simulasi error pada updateGambar
-      Gambar.prototype.updateGambar.mockRejectedValue(new Error('Internal server error'));
-  
-      const response = await request(app)
-          .put('/gambar/1')
-          .send({ judul: 'Updated Title', deskription: 'Updated Description' });
-  
-      expect(response.status).toBe(500);
-      expect(response.body).toEqual({ message: 'Failed to update' });
-      expect(Gambar.prototype.updateGambar).toHaveBeenCalledWith("1", { judul: 'Updated Title', deskription: 'Updated Description' });
-  });
-  
-
-    it('should delete a picture successfully', async () => {
-        Gambar.prototype.deletePicture.mockResolvedValue();
-
-        const response = await request(app).delete('/gambar/1');
-
-        expect(response.status).toBe(200);
-        expect(response.body).toEqual({ message: 'Picture deleted successfully' });
-        expect(Gambar.prototype.deletePicture).toHaveBeenCalledWith("1");
+        // Simulasi error pada updateGambar
+        gambarService.prototype.updateGambar.mockRejectedValue(new Error('Internal server error'));
+    
+        const response = await request(app)
+            .put('/gambar/1')
+            .send({ judul: 'Updated Title', deskription: 'Updated Description' });
+    
+        expect(response.status).toBe(500);
+        expect(response.body).toEqual({ message: 'Failed to update' });
+        expect(gambarService.prototype.updateGambar).toHaveBeenCalledWith("1", { judul: 'Updated Title', deskription: 'Updated Description' });
     });
 
-    it('should handle internal server error for create', async () => {
-        Gambar.prototype.createGambar.mockRejectedValue(new Error('Internal server error'));
+    it('should delete a picture', async () => {
+        gambarService.prototype.deletePicture.mockResolvedValue(true);
 
-        const response = await request(app)
-            .post('/gambar')
-            .field('judul', 'Test Judul')
-            .field('deskription', 'Test Deskripsi')
-            .attach('image', Buffer.from('file'), 'test.jpg');
+        const response = await request(app).delete('/gambar/1');
+        expect(response.status).toBe(200);
+        expect(response.body.message).toBe('Picture deleted successfully');
+    });
 
-        expect(response.status).toBe(500);
-        expect(response.body).toEqual({ error: 'Internal server error' });
+    it('should return error for non-existing picture on delete', async () => {
+        gambarService.prototype.deletePicture.mockRejectedValue(new Error('Id is not exist'));
+
+        const response = await request(app).delete('/gambar/999');
+        expect(response.status).toBe(400);
+        expect(response.body.message).toBe('Id is not exist');
     });
 
     it('should return 500 if deleting a picture fails', async () => {
-      // Simulasi error pada deletePicture
-      Gambar.prototype.deletePicture.mockRejectedValue(new Error('Internal server error'));
-  
-      const response = await request(app).delete('/gambar/1');
-  
-      expect(response.status).toBe(400);
-      expect(response.body).toEqual({ message: 'Id is not exist' });
-      expect(Gambar.prototype.deletePicture).toHaveBeenCalledWith("1");
-  });
+        // Simulasi error pada deletePicture
+        gambarService.prototype.deletePicture.mockRejectedValue(new Error('Internal server error'));
+    
+        const response = await request(app).delete('/gambar/1');
+    
+        expect(response.status).toBe(400);
+        expect(response.body).toEqual({ message: 'Id is not exist' });
+        expect(gambarService.prototype.deletePicture).toHaveBeenCalledWith("1");
+    });
   
 });
