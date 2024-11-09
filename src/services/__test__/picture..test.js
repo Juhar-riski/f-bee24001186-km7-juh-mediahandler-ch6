@@ -139,4 +139,3 @@ describe('Gambar Service', () => {
         expect(result).toEqual({ id: 1, judul: 'Test Judul', deskription: 'Test Deskripsi' });
     });
 });
- lokapala
