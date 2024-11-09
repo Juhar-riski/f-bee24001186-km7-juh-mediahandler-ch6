@@ -1,11 +1,9 @@
 name: CD - Deploy to EC2
 
 on:
-  workflow_run:
-    workflows: ["CI"]
-    types:
-      - completed
-
+  push:
+    branches:
+      - main  # atau branch lain yang digunakan untuk deployment
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -21,7 +19,7 @@ jobs:
 
       - name: Copy files to EC2 server
         run: |
-          scp -o StrictHostKeyChecking=no -i ec2_key.pem -r . ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USER }}/app
+          scp -o StrictHostKeyChecking=no -i ec2_key.pem -r . ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USER }}/cepakjeder
 
       - name: SSH into EC2 and deploy
         run: |
