@@ -65,4 +65,3 @@ jobs:
           files: ./coverage/lcov.info
           flags: unittests
           name: codecov-coverage-report
-          fail_ci_if_error: true
