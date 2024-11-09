@@ -27,6 +27,8 @@ jobs:
 
             npm install
 
+            npx prisma generate
+
             pm2 restart "cepakjeder" || pm2 start src/index.js --name "cepakjeder"
 
             pm2 save
