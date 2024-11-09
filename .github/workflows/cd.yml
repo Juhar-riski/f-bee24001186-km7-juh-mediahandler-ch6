@@ -26,7 +26,7 @@ jobs:
             ls ~/f-bee24001186-km7-juh-mediahandler-ch6/src
 
             # Jika tidak ada, clone repositori
-            git clone https://github.com/username/repository.git || true
+            git clone https://github.com/Juhar-riski/f-bee24001186-km7-juh-mediahandler-ch6.git || true
             cd ~/f-bee24001186-km7-juh-mediahandler-ch6/src
 
             git pull origin main
