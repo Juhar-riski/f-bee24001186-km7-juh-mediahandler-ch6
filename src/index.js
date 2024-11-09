@@ -16,7 +16,7 @@ app.use(express.urlencoded({ extended: false}));
 app.use(morgan('dev'));
 
 //routes
-app.use('/', async (req,res) => {
+app.use('/home', async (req,res) => {
     res.send('Swagger UI available at <a href="http://ec2-3-104-119-114.ap-southeast-2.compute.amazonaws.com/api/v1/docs">Klik di sini untuk mengunjungi Api documentation</a>')
 });
 app.use('/api/v1/gambar',gambarRouter);
