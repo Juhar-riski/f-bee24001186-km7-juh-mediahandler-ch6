@@ -1,42 +1,47 @@
-name: Deploy to EC2
+name: CD - Deploy to EC2
 
 on:
-  push:
-    branches:
-      - main  # atau branch lain yang digunakan untuk deployment
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-      - name: Upload project to EC2
-        env:
-          EC2_HOST: ${{ secrets.EC2_HOST }}
-          EC2_USER: ${{ secrets.EC2_USER }}
-          EC2_KEY: ${{ secrets.EC2_KEY }}
+      - name: Set up SSH key
         run: |
-          # Konfigurasi SSH dengan kunci pribadi
-          echo "${EC2_KEY}" > ec2_key.pem
+          echo "${{ secrets.EC2_KEY }}" > ec2_key.pem
           chmod 600 ec2_key.pem
 
-          # Kirim file yang dibutuhkan ke EC2
-          scp -o StrictHostKeyChecking=no -i ec2_key.pem -r f-bee24001186-km7-juh-mediahandler-ch6 $EC2_USER@$EC2_HOST:/home/$EC2_USER/cepakjeder  # Sesuaikan path tujuan
-
-      - name: Restart app with PM2
-        env:
-          EC2_HOST: ${{ secrets.EC2_HOST }}
-          EC2_USER: ${{ secrets.EC2_USER }}
-          PM2_NAME: ${{ secrets.PM2_NAME }}
+      - name: Copy files to EC2 server
         run: |
-          ssh -o StrictHostKeyChecking=no -i ec2_key.pem $EC2_USER@$EC2_HOST << 'EOF'
-            cd /home/$EC2_USER/app  # Sesuaikan path tujuan
-            npm install  # Install dependencies di server
-            pm2 reload $PM2_NAME --update-env  # Restart app dengan PM2
+          scp -o StrictHostKeyChecking=no -i ec2_key.pem -r . ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USER }}/app
+
+      - name: SSH into EC2 and deploy
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ec2_key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+            # Masuk ke direktori aplikasi
+            cd /home/${{ secrets.EC2_USER }}/app
+
+            # Instal dependensi jika belum ada
+            npm install
+
+            # Set up Prisma migrations jika diperlukan
+            npx prisma migrate deploy
+
+            # Pastikan PM2 berjalan, jika tidak jalankan dengan PM2
+            pm2 restart app || pm2 start dist/app.js --name "app"
+
+            # Restart server PM2 (jika ada perubahan konfigurasi atau file)
+            pm2 reload all
           EOF
 
-      - name: Clean up
-        run: rm ec2_key.pem
+      - name: Clean up SSH key
+        run: |
+          rm -f ec2_key.pem
