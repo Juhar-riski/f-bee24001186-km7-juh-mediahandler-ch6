@@ -1,0 +1,42 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - main  # atau branch lain yang digunakan untuk deployment
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Upload project to EC2
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_USER: ${{ secrets.EC2_USER }}
+          EC2_KEY: ${{ secrets.EC2_KEY }}
+        run: |
+          # Konfigurasi SSH dengan kunci pribadi
+          echo "${EC2_KEY}" > ec2_key.pem
+          chmod 600 ec2_key.pem
+
+          # Kirim file yang dibutuhkan ke EC2
+          scp -i ec2_key.pem -r . $EC2_USER@$EC2_HOST:/home/$EC2_USER/app  # Sesuaikan path tujuan
+
+      - name: Restart app with PM2
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_USER: ${{ secrets.EC2_USER }}
+          PM2_NAME: ${{ secrets.PM2_NAME }}
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ec2_key.pem $EC2_USER@$EC2_HOST << 'EOF'
+            cd /home/$EC2_USER/app  # Sesuaikan path tujuan
+            npm install  # Install dependencies di server
+            pm2 reload $PM2_NAME --update-env  # Restart app dengan PM2
+          EOF
+
+      - name: Clean up
+        run: rm ec2_key.pem
