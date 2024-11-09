@@ -24,7 +24,7 @@ jobs:
           chmod 600 ec2_key.pem
 
           # Kirim file yang dibutuhkan ke EC2
-          scp -i ec2_key.pem -r . $EC2_USER@$EC2_HOST:/home/$EC2_USER/app  # Sesuaikan path tujuan
+          scp -o StrictHostKeyChecking=no -i ec2_key.pem -r . $EC2_USER@$EC2_HOST:/home/$EC2_USER/app  # Sesuaikan path tujuan
 
       - name: Restart app with PM2
         env:
