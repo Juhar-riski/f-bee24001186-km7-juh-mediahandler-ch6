@@ -21,7 +21,7 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} << 'OEF'
 
-            cd ~/project/f-bee24001186-km7-juh-mediahandler-ch6/src
+            cd ~/f-bee24001186-km7-juh-mediahandler-ch6/src
 
             git pull origin main
 
