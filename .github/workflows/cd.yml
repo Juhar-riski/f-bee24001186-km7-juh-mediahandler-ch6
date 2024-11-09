@@ -3,7 +3,8 @@ name: CD - Deploy to EC2
 on:
   push:
     branches:
-      - main  # atau branch lain yang digunakan untuk deployment
+      - main
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -21,6 +22,11 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} << 'OEF'
 
+            # Verifikasi apakah direktori ada
+            ls ~/f-bee24001186-km7-juh-mediahandler-ch6/src
+
+            # Jika tidak ada, clone repositori
+            git clone https://github.com/username/repository.git || true
             cd ~/f-bee24001186-km7-juh-mediahandler-ch6/src
 
             git pull origin main
@@ -33,7 +39,7 @@ jobs:
 
             pm2 save
 
-            # Menambahkan pm2 ke startup agar otomatis berjalan saat serverr reboot
+            # Menambahkan pm2 ke startup agar otomatis berjalan saat server reboot
             pm2 startup systemd --hp /home/ubuntu
             pm2 save
           OEF
