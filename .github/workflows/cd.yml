@@ -8,40 +8,18 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
+      # Step 1: Checkout the repository
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up SSH key
+      # Step 2: Set up SSH
+      - name: Set up SSH
         uses: webfactory/ssh-agent@v0.9.0
         with:
-          ssh-private-key: ${{ secrets.EC2_KEY }}
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Deploy to EC2
+      # Step 3:  deploy on EC2, Install dependencies, and restart the app
+      - name: Install Node.js dependencies
         run: |
-          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} << 'OEF'
-
-            # Navigate to project directory (adjust as needed)
-            cd ~/f-bee24001186-km7-juh-mediahandler-ch6
-
-            # Pull latest changes from the repo
-            git pull origin main
-
-            # Install dependencies
-            npm install
-
-            # Prisma setup (adjust if you use migrations)
-            npx prisma generate
-
-            # Restart the app with PM2, or start if not running
-            pm2 restart "cepakjeder" || pm2 start src/index.js --name "cepakjeder"
-
-            # Save the PM2 process list
-            pm2 save
-
-            # Set PM2 to restart on system boot
-            pm2 startup systemd --hp /home/ubuntu
-            pm2 save
-
-          OEF
+          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_PUBLIC_IP }} "source ~/.nvm/nvm.sh && cd F-BEE24001186-km7-jua-Basic-Banking-System-ch4 && git pull origin main && npm install && npx prisma generate && pm2 restart my-app"
