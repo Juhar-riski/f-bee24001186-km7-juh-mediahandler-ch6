@@ -42,7 +42,7 @@ jobs:
         run: cat .env
 
       - name: Install dependencies
-        run: npm install
+        run: npm install quietly
 
       - name: Set up Prisma and apply migrations
         run: |
