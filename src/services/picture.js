@@ -2,7 +2,7 @@
 require('dotenv').config();
 const imagekit = require('../libs/imagekit');
 const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient;
+const prisma = new PrismaClient();
 
 
 class Gambar {
@@ -11,6 +11,11 @@ class Gambar {
         const file = req.file;
         
         if (!file) throw new Error('File is required');
+
+        const allowedMimeTypes = ['image/jpeg', 'image/png','image/jpg'];
+        if (!allowedMimeTypes.includes(file.mimetype)) {
+        throw new Error('Only JPEG, JPG and PNG files are allowed');
+        }
 
         const response = await imagekit.upload({
             file: file.buffer.toString('base64'),
