@@ -3,7 +3,7 @@ name: CD - Deploy to EC2
 on:
   push:
     branches:
-      - main
+      - main  # atau branch lain yang digunakan untuk deployment
 
 jobs:
   deploy:
@@ -22,24 +22,25 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} << 'OEF'
 
-            # Verifikasi apakah direktori ada
-            ls ~/f-bee24001186-km7-juh-mediahandler-ch6/src
+            # Pastikan direktori sudah benar
+            cd ~/f-bee24001186-km7-juh-mediahandler-ch6
 
-            # Jika tidak ada, clone repositori
-            git clone https://github.com/Juhar-riski/f-bee24001186-km7-juh-mediahandler-ch6.git || true
-            cd ~/f-bee24001186-km7-juh-mediahandler-ch6/src
-
+            # Pull perubahan terbaru dari main branch
             git pull origin main
 
+            # Instalasi dependensi
             npm install
 
+            # Generate Prisma
             npx prisma generate
 
+            # Restart aplikasi menggunakan PM2
             pm2 restart "cepakjeder" || pm2 start src/index.js --name "cepakjeder"
 
+            # Menyimpan konfigurasi PM2
             pm2 save
 
-            # Menambahkan pm2 ke startup agar otomatis berjalan saat server reboot
+            # Menambahkan PM2 ke startup agar otomatis berjalan saat reboot
             pm2 startup systemd --hp /home/ubuntu
             pm2 save
           OEF
