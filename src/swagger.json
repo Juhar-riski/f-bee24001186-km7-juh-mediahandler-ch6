@@ -1,0 +1,305 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+      "title": "Gambar API",
+      "description": "API untuk mengelola gambar",
+      "version": "1.0.0"
+    },
+    "tags": [
+      {
+        "name": "Gambar",
+        "description": "Ini untuk melakukan crud gambar"
+      }
+    ],
+    "paths": {
+      "/gambar": {
+        "post": {
+          "tags": [
+            "Gambar"
+          ],
+          "summary": "Upload gambar baru",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "multipart/form-data": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "judul": {
+                      "type": "string",
+                      "description": "Judul gambar",
+                      "example": "Judul Gambar"
+                    },
+                    "deskription": {
+                      "type": "string",
+                      "description": "Deskripsi gambar",
+                      "example": "Deskripsi gambar ini"
+                    },
+                    "image": {
+                      "type": "string",
+                      "format": "binary",
+                      "description": "File gambar yang akan di-upload"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Gambar berhasil di-upload",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer"
+                      },
+                      "judul": {
+                        "type": "string"
+                      },
+                      "deskription": {
+                        "type": "string"
+                      },
+                      "urlGambar": {
+                        "type": "string",
+                        "format": "uri",
+                        "description": "URL dari gambar yang di-upload"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Terjadi kesalahan saat upload gambar"
+            }
+          }
+        },
+        "get": {
+          "tags": [
+            "Gambar"
+          ],
+          "summary": "Ambil semua gambar",
+          "responses": {
+            "200": {
+              "description": "Berhasil mengambil gambar",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "message": {
+                        "type": "string",
+                        "example": "Fetched pictures successfully"
+                      },
+                      "data": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "integer"
+                            },
+                            "judul": {
+                              "type": "string"
+                            },
+                            "deskription": {
+                              "type": "string"
+                            },
+                            "urlGambar": {
+                              "type": "string",
+                              "format": "uri",
+                              "description": "URL dari gambar"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Gagal mengambil gambar"
+            }
+          }
+        }
+      },
+      "/gambar/{id}": {
+        "get": {
+          "tags": [
+            "Gambar"
+          ],
+          "summary": "Ambil detail gambar berdasarkan ID",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer"
+              },
+              "description": "ID dari gambar yang ingin diambil"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Berhasil mengambil detail gambar",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "message": {
+                        "type": "string",
+                        "example": "Fetched picture successfully"
+                      },
+                      "data": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "judul": {
+                            "type": "string"
+                          },
+                          "deskription": {
+                            "type": "string"
+                          },
+                          "urlGambar": {
+                            "type": "string",
+                            "format": "uri",
+                            "description": "URL dari gambar"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Gambar tidak ditemukan"
+            },
+            "500": {
+              "description": "Gagal mengambil detail gambar"
+            }
+          }
+        },
+        "put": {
+          "tags": [
+            "Gambar"
+          ],
+          "summary": "Perbarui gambar",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer"
+              },
+              "description": "ID dari gambar yang ingin diperbarui"
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "judul": {
+                      "type": "string",
+                      "description": "Judul baru dari gambar",
+                      "example": "Judul Gambar Baru"
+                    },
+                    "deskription": {
+                      "type": "string",
+                      "description": "Deskripsi baru dari gambar",
+                      "example": "Deskripsi gambar yang diperbarui"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Gambar berhasil diperbarui",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "message": {
+                        "type": "string",
+                        "example": "Picture updated successfully"
+                      },
+                      "data": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "judul": {
+                            "type": "string"
+                          },
+                          "deskription": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Gagal memperbarui gambar"
+            }
+          }
+        },
+        "delete": {
+          "tags": [
+            "Gambar"
+          ],
+          "summary": "Hapus gambar berdasarkan ID",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer"
+              },
+              "description": "ID dari gambar yang ingin dihapus"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Gambar berhasil dihapus",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "message": {
+                        "type": "string",
+                        "example": "Picture deleted successfully"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Gagal menghapus gambar - ID tidak ditemukan"
+            }
+          }
+        }
+      }
+    }
+  }
