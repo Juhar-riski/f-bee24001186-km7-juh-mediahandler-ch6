@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE "users" ADD COLUMN     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ADD COLUMN     "reset_token" TEXT,
+ADD COLUMN     "reset_token_expiry" TIMESTAMP(3),
+ADD COLUMN     "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
