@@ -18,7 +18,7 @@ router.get('/notifikasi', (req, res) => {
 
     <script>
         // Hubungkan ke WebSocket server
-        const socket = io('${process.env.WS_URL || "localhost:4000"}');
+        const socket = io();
 
 
         socket.on('userNotification', (data) => {
