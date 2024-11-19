@@ -3,7 +3,7 @@ const Sentry = require('@sentry/node');
 const express = require('express');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
-const http = require('http');
+const http = require('http'); // Untuk membuat server HTTP
 const { Server } = require('socket.io');
 const gambarRouter = require('./routes/picture');
 const userRoutes = require('./routes/user');
@@ -15,13 +15,8 @@ const swaggerJSON = require('./swagger.json');
 const swaggerUI = require('swagger-ui-express');
 
 const app = express();
-const server = http.createServer(app);
-const io = new Server(server, {
-  cors: {
-    origin: process.env.CORS_ORIGIN || '*',
-    methods: ['GET', 'POST'],
-  },
-});
+const server = http.createServer(app); // Membuat server HTTP
+const io = new Server(server);
 
 const port = process.env.PORT || 4000;
 
