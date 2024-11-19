@@ -18,7 +18,8 @@ router.get('/notifikasi', (req, res) => {
 
     <script>
         // Hubungkan ke WebSocket server
-        const socket = io('http://localhost:4000');
+        const socket = io('http://ec2-3-104-119-114.ap-southeast-2.compute.amazonaws.com:4000');
+
 
         socket.on('userNotification', (data) => {
         const notifications = document.getElementById('notifications');
