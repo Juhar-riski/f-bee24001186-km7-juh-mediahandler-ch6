@@ -2,37 +2,48 @@
 require('dotenv').config();
 const imagekit = require('../libs/imagekit');
 const { PrismaClient } = require('@prisma/client');
+const multer = require('multer');
 const prisma = new PrismaClient();
 
 
+const storage = multer.memoryStorage(); // Menyimpan file di memory (buffer)
+const upload = multer({
+    storage: storage,
+    limits: { fileSize: 5 * 1024 * 1024 },  // Batasi ukuran file maksimal 5MB
+    fileFilter: (req, file, cb) => {
+        // Validasi file yang diizinkan
+        if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png' || file.mimetype === 'image/jpg') {
+            cb(null, true);
+        } else {
+            cb(new Error('Invalid file type'), false);
+        }
+    }
+});
+
+// Class Gambar untuk mengelola gambar
 class Gambar {
+    // Method untuk membuat gambar baru
     async createGambar(req) {
         const { judul, deskription } = req.body;
         const file = req.file;
-        
+    
+        if (!judul || !deskription) throw new Error('Judul and Deskription are required');
         if (!file) throw new Error('File is required');
-
-        const allowedMimeTypes = ['image/jpeg', 'image/png','image/jpg'];
-        if (!allowedMimeTypes.includes(file.mimetype)) {
-        throw new Error('Only JPEG, JPG and PNG files are allowed');
+        if (!['image/jpeg', 'image/png', 'image/jpg'].includes(file.mimetype)) {
+            throw new Error('Only JPEG, JPG and PNG files are allowed');
         }
-
+    
         const response = await imagekit.upload({
             file: file.buffer.toString('base64'),
             fileName: file.originalname,
             folder: '/uploads',
         });
-
-        const picture = await prisma.picture.create({
-            data: {
-                judul,
-                deskription,
-                urlGambar: response.url,
-            },
+    
+        return prisma.picture.create({
+            data: { judul, deskription, urlGambar: response.url },
         });
-
-        return picture;
     }
+    
 
     async getGambar() {
         return await prisma.picture.findMany({

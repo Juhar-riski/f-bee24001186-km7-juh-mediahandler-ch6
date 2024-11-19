@@ -1,26 +1,35 @@
 // gambarController.js
 const express = require('express');
 const multer = require('multer');
-const gambar = require('../services/picture'); // pastikan path benar
-const { error } = require('console');
-const upload = multer(); // menggunakan multer untuk meng-handle upload file
+const Sentry = require('@sentry/node');
+const gambar = require('../services/picture');
 
-// Membuat instance gambar
+
 const gambarService = new gambar();
 
 const router = express.Router();
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
 
-// Endpoint POST untuk meng-upload gambar
 router.post('/', upload.single('image'), async (req, res) => {
     try {
         const pictures = await gambarService.createGambar(req, res);
         res.status(201).json(pictures);
     } catch (error) {
-        res.status(500).json({ error: 'Internal server error' });
+        Sentry.captureException(error);
+        if (error.message === 'File is required') {
+            return res.status(400).json({ message: error.message });
+        }
+
+        if (error.message === 'Only JPEG, JPG and PNG files are allowed') {
+            return res.status(400).json({ message: error.message });
+        }
+
+        res.status(500).json({ message: 'internal server error' });
     }
 });
 
-// Endpoint GET untuk mengambil semua gambar
+
 router.get('/', async (req, res) => {
     try {
         const pictures = await gambarService.getGambar();
@@ -29,11 +38,12 @@ router.get('/', async (req, res) => {
             data: pictures
         });
     } catch (error) {
-        res.status(500).json({ message: 'Failed to fetch pictures' });
+        Sentry.captureException(error);
+        res.status(500).json({ message: "internal server error" });
     }
 });
 
-// Endpoint GET untuk mengambil detail gambar berdasarkan ID
+
 router.get('/:id', async (req, res) => {
     try {
         const pictureId = req.params.id;
@@ -46,11 +56,12 @@ router.get('/:id', async (req, res) => {
             data: picture
         });
     } catch (error) {
-        res.status(500).json({ message: 'Failed to fetch picture' });
+        Sentry.captureException(error);
+        res.status(500).json({ message: "internal server error" });
     }
 });
 
-// Endpoint PUT untuk memperbarui gambar
+
 router.put('/:id', async (req, res) => {
     const pictureId = req.params.id;
     const { judul, deskription } = req.body;
@@ -62,7 +73,12 @@ router.put('/:id', async (req, res) => {
             data: updatedPicture
         });
     } catch (error) {
-        res.status(500).json({ message: 'Failed to update' });
+        Sentry.captureException(error);
+        if (error.message === 'Picture not found') {
+            return res.status(404).json({ message: error.message });
+        }
+
+        res.status(500).json({ message: 'internal server error' });
     }
 });
 
@@ -76,7 +92,12 @@ router.delete('/:id', async (req, res) => {
             message: 'Picture deleted successfully'
         });
     } catch (error) {
-        res.status(400).json({ message: 'Id is not exist' });
+        Sentry.captureException(error);
+        if (error.message === 'Picture not found') {
+            return res.status(404).json({ message: error.message });
+        }
+
+        res.status(500).json({ message: 'internal server error' });
     }
 });
 

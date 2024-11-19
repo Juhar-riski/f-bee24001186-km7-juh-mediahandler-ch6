@@ -1,162 +1,591 @@
 {
-    "openapi": "3.0.0",
-    "info": {
-      "title": "Gambar API",
-      "description": "API untuk mengelola gambar",
-      "version": "1.0.0"
+  "openapi": "3.0.0",
+  "info": {
+    "title": "User Management API",
+    "description": "API untuk mengelola user, reset password, dan autentikasi.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:4000/api/v1",
+      "description": "Local server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "View",
+      "description": "View"
     },
-    "tags": [
-      {
-        "name": "Gambar",
-        "description": "Ini untuk melakukan crud gambar"
-      }
-    ],
-    "paths": {
-      "/gambar": {
-        "post": {
-          "tags": [
-            "Gambar"
-          ],
-          "summary": "Upload gambar baru",
-          "requestBody": {
-            "required": true,
+    {
+      "name": "Login",
+      "description": "Login user"
+    },
+    {
+      "name": "User",
+      "description": "Melakukan CRUD pada user"
+    },
+    {
+      "name": "Password",
+      "description": "Melakukan proses reset password"
+    },
+    {
+      "name": "Gambar",
+      "description": "Ini untuk melakukan crud gambar"
+    }
+  ],
+  "paths": {
+    "/view/notifikasi": {
+      "get": {
+        "tags": [
+          "View"
+        ],
+        "summary": "Get WebSocket Notification Page",
+        "description": "Returns an HTML page that connects to a WebSocket server for real-time notifications.\n",
+        "responses": {
+          "200": {
+            "description": "HTML content of the notification page",
             "content": {
-              "multipart/form-data": {
+              "text/html": {
+                "schema": {
+                  "type": "string",
+                  "example": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>WebSocket Notifications</title>\n    <script src=\"https://cdn.socket.io/4.7.0/socket.io.min.js\"></script>\n</head>\n<body>\n    <h1>Notifications</h1>\n    <div id=\"notifications\"></div>\n    <script>\n        // WebSocket connection logic\n    </script>\n</body>\n</html>\n"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "judul": {
+                    "message": {
                       "type": "string",
-                      "description": "Judul gambar",
-                      "example": "Judul Gambar"
+                      "example": "Internal server error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/view/login": {
+      "get": {
+        "tags": [
+          "View"
+        ],
+        "summary": "Get Login Page",
+        "description": "Returns an HTML page with a login form that allows users to input their email and password.\n",
+        "responses": {
+          "200": {
+            "description": "HTML content of the login page",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string",
+                  "example": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Login</title>\n</head>\n<body>\n    <div class=\"login-container\">\n        <h2>Login</h2>\n        <form>\n            <div class=\"form-group\">\n                <label for=\"email\">Email</label>\n                <input type=\"email\" id=\"email\" name=\"email\" placeholder=\"Enter your email\" required>\n            </div>\n            <div class=\"form-group\">\n                <label for=\"password\">Password</label>\n                <input type=\"password\" id=\"password\" name=\"password\" placeholder=\"Enter your password\" required>\n            </div>\n            <button type=\"submit\" class=\"btn\">Login</button>\n            <div class=\"forgot-password\">\n                <a href=\"localhost:4000/api/v1/password/lupa-pasword\">Lupa Password?</a>\n            </div>\n        </form>\n    </div>\n</body>\n</html>\n"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Internal server error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/register": {
+      "post": {
+        "tags": [
+          "Login"
+        ],
+        "summary": "Register user baru",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "userData": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "email": {
+                        "type": "string"
+                      },
+                      "password": {
+                        "type": "string"
+                      }
                     },
-                    "deskription": {
-                      "type": "string",
-                      "description": "Deskripsi gambar",
-                      "example": "Deskripsi gambar ini"
+                    "required": [
+                      "name",
+                      "email",
+                      "password"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User berhasil didaftarkan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
                     },
-                    "image": {
-                      "type": "string",
-                      "format": "binary",
-                      "description": "File gambar yang akan di-upload"
+                    "name": {
+                      "type": "string"
+                    },
+                    "email": {
+                      "type": "string"
                     }
                   }
                 }
               }
             }
           },
-          "responses": {
-            "201": {
-              "description": "Gambar berhasil di-upload",
-              "content": {
-                "application/json": {
-                  "schema": {
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/users": {
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Mendapatkan daftar user",
+        "responses": {
+          "200": {
+            "description": "Daftar user berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
                     "type": "object",
                     "properties": {
                       "id": {
                         "type": "integer"
                       },
-                      "judul": {
+                      "name": {
                         "type": "string"
                       },
-                      "deskription": {
+                      "email": {
                         "type": "string"
-                      },
-                      "urlGambar": {
-                        "type": "string",
-                        "format": "uri",
-                        "description": "URL dari gambar yang di-upload"
                       }
                     }
                   }
                 }
               }
-            },
-            "500": {
-              "description": "Terjadi kesalahan saat upload gambar"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/users/{id}": {
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Mendapatkan detail user berdasarkan ID",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
             }
           }
-        },
-        "get": {
-          "tags": [
-            "Gambar"
-          ],
-          "summary": "Ambil semua gambar",
-          "responses": {
-            "200": {
-              "description": "Berhasil mengambil gambar",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "message": {
-                        "type": "string",
-                        "example": "Fetched pictures successfully"
-                      },
-                      "data": {
-                        "type": "array",
-                        "items": {
-                          "type": "object",
-                          "properties": {
-                            "id": {
-                              "type": "integer"
-                            },
-                            "judul": {
-                              "type": "string"
-                            },
-                            "deskription": {
-                              "type": "string"
-                            },
-                            "urlGambar": {
-                              "type": "string",
-                              "format": "uri",
-                              "description": "URL dari gambar"
-                            }
-                          }
-                        }
-                      }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detail user berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "email": {
+                      "type": "string"
                     }
                   }
                 }
               }
-            },
-            "500": {
-              "description": "Gagal mengambil gambar"
             }
+          },
+          "404": {
+            "description": "User tidak ditemukan"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       },
-      "/gambar/{id}": {
-        "get": {
-          "tags": [
-            "Gambar"
-          ],
-          "summary": "Ambil detail gambar berdasarkan ID",
-          "parameters": [
-            {
-              "name": "id",
-              "in": "path",
-              "required": true,
-              "schema": {
-                "type": "integer"
-              },
-              "description": "ID dari gambar yang ingin diambil"
+      "put": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Memperbarui data user",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
             }
-          ],
-          "responses": {
-            "200": {
-              "description": "Berhasil mengambil detail gambar",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "message": {
-                        "type": "string",
-                        "example": "Fetched picture successfully"
-                      },
-                      "data": {
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User berhasil diperbarui",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "email": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Menghapus user berdasarkan ID",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User berhasil dihapus"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/password/lupa-password": {
+      "post": {
+        "tags": [
+          "Password"
+        ],
+        "summary": "Mengirimkan email reset password",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Email reset password telah dikirim"
+          },
+          "400": {
+            "description": "Email harus diisi"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/pasword/reset-password/{email}/{token}": {
+      "post": {
+        "tags": [
+          "Password"
+        ],
+        "summary": "Reset password user",
+        "parameters": [
+          {
+            "name": "email",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "email"
+            }
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "password": {
+                    "type": "string",
+                    "format": "password"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password berhasil diperbarui"
+          },
+          "400": {
+            "description": "Token tidak valid atau kadaluwarsa"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/login": {
+      "post": {
+        "tags": [
+          "Login"
+        ],
+        "summary": "Login user",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login berhasil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "token": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Email atau password salah"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/gambar": {
+      "post": {
+        "tags": [
+          "Gambar"
+        ],
+        "summary": "Upload gambar baru",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "judul": {
+                    "type": "string",
+                    "description": "Judul gambar",
+                    "example": "Judul Gambar"
+                  },
+                  "deskription": {
+                    "type": "string",
+                    "description": "Deskripsi gambar",
+                    "example": "Deskripsi gambar ini"
+                  },
+                  "image": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "File gambar yang akan di-upload"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Gambar berhasil di-upload",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "judul": {
+                      "type": "string"
+                    },
+                    "deskription": {
+                      "type": "string"
+                    },
+                    "urlGambar": {
+                      "type": "string",
+                      "format": "uri",
+                      "description": "URL dari gambar yang di-upload"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Terjadi kesalahan saat upload gambar"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Gambar"
+        ],
+        "summary": "Ambil semua gambar",
+        "responses": {
+          "200": {
+            "description": "Berhasil mengambil gambar",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Fetched pictures successfully"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
                         "type": "object",
                         "properties": {
                           "id": {
@@ -179,127 +608,196 @@
                   }
                 }
               }
-            },
-            "404": {
-              "description": "Gambar tidak ditemukan"
-            },
-            "500": {
-              "description": "Gagal mengambil detail gambar"
             }
+          },
+          "500": {
+            "description": "Gagal mengambil gambar"
           }
-        },
-        "put": {
-          "tags": [
-            "Gambar"
-          ],
-          "summary": "Perbarui gambar",
-          "parameters": [
-            {
-              "name": "id",
-              "in": "path",
-              "required": true,
-              "schema": {
-                "type": "integer"
-              },
-              "description": "ID dari gambar yang ingin diperbarui"
-            }
-          ],
-          "requestBody": {
+        }
+      }
+    },
+    "/gambar/{id}": {
+      "get": {
+        "tags": [
+          "Gambar"
+        ],
+        "summary": "Ambil detail gambar berdasarkan ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
             "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID dari gambar yang ingin diambil"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Berhasil mengambil detail gambar",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "judul": {
+                    "message": {
                       "type": "string",
-                      "description": "Judul baru dari gambar",
-                      "example": "Judul Gambar Baru"
+                      "example": "Fetched picture successfully"
                     },
-                    "deskription": {
-                      "type": "string",
-                      "description": "Deskripsi baru dari gambar",
-                      "example": "Deskripsi gambar yang diperbarui"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "responses": {
-            "200": {
-              "description": "Gambar berhasil diperbarui",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "message": {
-                        "type": "string",
-                        "example": "Picture updated successfully"
-                      },
-                      "data": {
-                        "type": "object",
-                        "properties": {
-                          "id": {
-                            "type": "integer"
-                          },
-                          "judul": {
-                            "type": "string"
-                          },
-                          "deskription": {
-                            "type": "string"
-                          }
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        },
+                        "judul": {
+                          "type": "string"
+                        },
+                        "deskription": {
+                          "type": "string"
+                        },
+                        "urlGambar": {
+                          "type": "string",
+                          "format": "uri",
+                          "description": "URL dari gambar"
                         }
                       }
                     }
                   }
                 }
               }
+            }
+          },
+          "404": {
+            "description": "Gambar tidak ditemukan"
+          },
+          "500": {
+            "description": "Gagal mengambil detail gambar"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Gambar"
+        ],
+        "summary": "Perbarui gambar",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
             },
-            "500": {
-              "description": "Gagal memperbarui gambar"
+            "description": "ID dari gambar yang ingin diperbarui"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "judul": {
+                    "type": "string",
+                    "description": "Judul baru dari gambar",
+                    "example": "Judul Gambar Baru"
+                  },
+                  "deskription": {
+                    "type": "string",
+                    "description": "Deskripsi baru dari gambar",
+                    "example": "Deskripsi gambar yang diperbarui"
+                  }
+                }
+              }
             }
           }
         },
-        "delete": {
-          "tags": [
-            "Gambar"
-          ],
-          "summary": "Hapus gambar berdasarkan ID",
-          "parameters": [
-            {
-              "name": "id",
-              "in": "path",
-              "required": true,
-              "schema": {
-                "type": "integer"
-              },
-              "description": "ID dari gambar yang ingin dihapus"
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "Gambar berhasil dihapus",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "message": {
-                        "type": "string",
-                        "example": "Picture deleted successfully"
+        "responses": {
+          "200": {
+            "description": "Gambar berhasil diperbarui",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Picture updated successfully"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        },
+                        "judul": {
+                          "type": "string"
+                        },
+                        "deskription": {
+                          "type": "string"
+                        }
                       }
                     }
                   }
                 }
               }
-            },
-            "400": {
-              "description": "Gagal menghapus gambar - ID tidak ditemukan"
             }
+          },
+          "500": {
+            "description": "Gagal memperbarui gambar"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Gambar"
+        ],
+        "summary": "Hapus gambar berdasarkan ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID dari gambar yang ingin dihapus"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Gambar berhasil dihapus",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Picture deleted successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Gagal menghapus gambar - ID tidak ditemukan"
           }
         }
       }
     }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
   }
+}
