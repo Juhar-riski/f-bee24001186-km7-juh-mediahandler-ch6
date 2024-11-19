@@ -16,7 +16,13 @@ const swaggerUI = require('swagger-ui-express');
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server); // Inisialisasi Socket.IO
+const io = new Server(server, {
+  cors: {
+    origin: 'http://ec2-3-104-119-114.ap-southeast-2.compute.amazonaws.com',
+    methods: ['GET', 'POST'],
+  },
+});
+
 const port = process.env.PORT || 4000;
 
 app.set('io', io);
