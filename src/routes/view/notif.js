@@ -3,6 +3,7 @@ const router = express.Router();
 
 // Endpoint API yang mengembalikan HTML
 router.get('/notifikasi', (req, res) => {
+  const domain = process.env.APP_URL;
   const htmlContent = `
   <!DOCTYPE html>
     <html lang="en">
@@ -18,7 +19,7 @@ router.get('/notifikasi', (req, res) => {
 
     <script>
         // Hubungkan ke WebSocket server
-        const socket = io('http://localhost:4000');
+        const socket = io('http://${domain}:4000');
 
         socket.on('userNotification', (data) => {
         const notifications = document.getElementById('notifications');
