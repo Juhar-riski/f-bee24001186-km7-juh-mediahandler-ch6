@@ -18,7 +18,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: 'http://ec2-3-104-119-114.ap-southeast-2.compute.amazonaws.com',
+    origin: process.env.CORS_ORIGIN || '*',
     methods: ['GET', 'POST'],
   },
 });
